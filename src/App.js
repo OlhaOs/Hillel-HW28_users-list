@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Users from './components/Users';
 import Albums from './components/Albums';
 import Photos from './components/Photos';
+import { useFetchHook } from './components/Utils/useFetchHook';
 
 import './App.css';
 
@@ -12,45 +13,82 @@ function App() {
   const [users, setUsers] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [photos, setPhotos] = useState([]);
+  const {
+    data: usersData,
+    loading: usersLoading,
+    error: usersError,
+    doFetch: fetchUsers,
+  } = useFetchHook();
+
+  const {
+    data: albumsData,
+    loading: albumsLoading,
+    error: albumsEalbumsLoadingrror,
+    doFetch: fetchAlbums,
+  } = useFetchHook();
+
+  const {
+    data: photosData,
+    loading: photosLoading,
+    error: photosError,
+    doFetch: fetchPhotos,
+  } = useFetchHook();
 
   useEffect(() => {
-    fetch(`${BASE_URL}/users`)
-      .then(response => response.json())
-      .then(data => {
-        setUsers(data);
-      });
+    fetchUsers(`${BASE_URL}/users`);
   }, []);
 
   const handleAlbumBtnClick = id => {
-    fetch(`${BASE_URL}/albums?userId=${id}`)
-      .then(response => response.json())
-      .then(data => {
-        setAlbums(data);
-        setPhotos([]);
-      });
+    fetchAlbums(`${BASE_URL}/albums?userId=${id}`);
   };
-
   const handlePhotosBtnClick = id => {
-    fetch(`${BASE_URL}/photos?albumId=${id}`)
-      .then(response => response.json())
-      .then(data => {
-        setPhotos(data);
-
-      });
+    fetchPhotos(`${BASE_URL}/photos?albumId=${id}`);
   };
+
+  useEffect(() => {
+    if (usersData) {
+      setUsers(usersData);
+    }
+    if (albumsData) {
+      setAlbums(albumsData);
+      setPhotos([]);
+    }
+    if (photosData) {
+      setPhotos(photosData);
+    }
+  }, [usersData, albumsData, photosData]);
 
   return (
     <div className='container'>
       <Routes>
         <Route
           path='/'
-          element={<Users list={users} handleClick={handleAlbumBtnClick} />}
+          element={
+            <Users
+              list={users}
+              handleClick={handleAlbumBtnClick}
+              loading={usersLoading}
+              error={usersError}
+            />
+          }
         />
         <Route
           path='/albums/:userId'
-          element={<Albums list={albums} handleClick={handlePhotosBtnClick} />}
+          element={
+            <Albums
+              list={albums}
+              handleClick={handlePhotosBtnClick}
+              loading={albumsLoading}
+              error={albumsEalbumsLoadingrror}
+            />
+          }
         />
-        <Route path='/photos/:albumId' element={<Photos list={photos} />} />
+        <Route
+          path='/photos/:albumId'
+          element={
+            <Photos list={photos} loading={photosLoading} error={photosError} />
+          }
+        />
       </Routes>
     </div>
   );

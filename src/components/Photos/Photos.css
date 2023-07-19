@@ -9,9 +9,12 @@
   list-style: none;
 }
 .albumImg {
- 
   cursor: pointer;
 }
-.albumImgLarge{
-   display: block;
+.albumImgLarge {
+  display: block;
+}
+
+.loader {
+  margin-top: 50px;
 }
